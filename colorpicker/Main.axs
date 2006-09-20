@@ -15,9 +15,9 @@ integer color[8][3]	//color value storage in RGB
 integer h2rRreturn  //because functions can't return arrays; correct?
 integer h2rGreturn
 integer h2rBreturn
-integer r2hHreturn
-integer r2hSreturn
-integer r2hVreturn
+float	r2hHreturn
+float	r2hSreturn
+float	r2hVreturn
 
 define_event
 
@@ -117,14 +117,14 @@ define_function integer h2r(float h2rhsH, float h2rhsS, float h2rhsV) {
 (*    r2hSreturn, r2hVreturn            *)
 (*  TODO: Can functions return arrays?  *)
 (****************************************)
-define_function integer r2h(integer rgR, integer rgG, integer rgB) {
+define_function integer r2h(float rgR, float rgG, float rgB) {
     stack_var float r2hhsS
     stack_var float r2hhsV
     stack_var float r2hhsH
-    stack_var integer m
-    stack_var integer v
-    stack_var integer value
-    stack_var integer delta
+    stack_var float m
+    stack_var float v
+    stack_var float value
+    stack_var float delta
     m=rgR
     if(rgG<m) m=rgG
     if(rgB<m) m=rgB
@@ -155,7 +155,7 @@ define_function integer r2h(integer rgR, integer rgG, integer rgB) {
 	return 0
 }
 
-define_function integer rc(x,m) {
+define_function float rc(float x, float m) {
     if(x>m) {
 	return m
     }
@@ -184,7 +184,7 @@ define_function dom(integer domR, integer domG, integer domB) {
     color[1][3] = domB
     send_command dvTP, "'^BCF-4&6,0,#', format('%02X', color[1][1]), format('%02X', color[1][2]), format('%02X', color[1][3])" 
     send_command dvTP, "'^BMF-5&7,0,%T#', format('%02X', color[1][1]), format('%02X', color[1][2]), format('%02X', color[1][3])" 
-    r2h(domR, domG, domB)
+    r2h(type_cast(domR), type_cast(domG), type_cast(domB))
     yS = r2hSreturn
     pS = yS
     yH = r2hHreturn
@@ -196,13 +196,15 @@ define_function dom(integer domR, integer domG, integer domB) {
 	yV = r2hVreturn + 30
 	pV = yV - 15
     }
-    h2r(type_cast(pH), type_cast(pS), type_cast(pV))
+
+    h2r(pH, pS, pV)
     color[2][1] = h2rRreturn
     color[2][2] = h2rGreturn
     color[2][3] = h2rBreturn
     send_command dvTP, "'^BCF-8,0,#', format('%02X', color[2][1]), format('%02X', color[2][2]), format('%02X', color[2][3])" 
     send_command dvTP, "'^BMF-9,0,%T#', format('%02X', color[2][1]), format('%02X', color[2][2]), format('%02X', color[2][3])" 
-    h2r(type_cast(yH), type_cast(yS), type_cast(yV))
+
+    h2r(yH, yS, yV)
     color[3][1] = h2rRreturn
     color[3][2] = h2rGreturn
     color[3][3] = h2rBreturn
@@ -217,7 +219,7 @@ define_function dom(integer domR, integer domG, integer domB) {
 	yxS = r2hSreturn
 	yS = r2hSreturn
 	yv = r2hVreturn
-	if(r2hHreturn > 70 ) {
+	if(r2hVreturn > 70 ) {
 	    yxV = r2hVreturn - 30
 	    prV = yxV + 15
 	} else {
@@ -236,125 +238,83 @@ define_function dom(integer domR, integer domG, integer domB) {
 	yxV = rc(r2hVreturn + 20, 100)
 	prV = r2hVreturn
     }
-//    if((hs.h>=60)&&(hs.h<180)) {
     if(r2hHreturn >= 60 && r2hHreturn < 180) {
-//	pr.h=yx.h=y.h=hs.h-40;
 	prH = r2hHreturn - 40
 	yxH = r2hHreturn - 40
 	yH = r2hHreturn - 40
-//	pr.s=y.s=yx.s=hs.s;
 	prS = r2hSreturn
 	yS = r2hSreturn
 	yxS = r2hSreturn
-//	y.v=hs.v;
 	yV = r2hVreturn
-//	if(hs.v>70) {
 	if(r2hVreturn > 70) {
-//	    yx.v=hs.v-30
-//	    pr.v = yx.v +15
-	yxV = r2hVreturn - 30
-	prV = yxV + 15
-	} else {
-//	    yx.v=hs.v+30
-//	    pr.v = yx.v -15
-	yxV = r2hVreturn + 30
-	prV = yxV - 15
-	}
-    }
-
-//    if((hs.h>=180)&&(hs.h<220)) {
-    if(r2hHreturn >= 180 && r2hHreturn < 220) {
-//	pr.h=yx.h=hs.h-170;
-	prH = r2hHreturn - 170
-	yxH = r2hHreturn - 170
-//	y.h=hs.h-160;
-	yH = r2hHreturn - 160
-//	pr.s=yx.s=y.s=hs.s;
-	prS = r2hSreturn
-	yxS = r2hSreturn
-	yS = r2hSreturn
-//	y.v=hs.v;
-	yV = r2hVreturn
-//	if(hs.v>70) {
-	if(r2hVreturn > 70) {
-//	    yx.v=hs.v-30
-//	    pr.v = yx.v +15
 	    yxV = r2hVreturn - 30
 	    prV = yxV + 15
 	} else {
-//	    yx.v=hs.v+30
-//	    pr.v = yx.v -15
 	    yxV = r2hVreturn + 30
 	    prV = yxV - 15
 	}
     }
-//    if((hs.h>=220)&&(hs.h<300)) {
+    if(r2hHreturn >= 180 && r2hHreturn < 220) {
+	prH = r2hHreturn - 170
+	yxH = r2hHreturn - 170
+	yH = r2hHreturn - 160
+	prS = r2hSreturn
+	yxS = r2hSreturn
+	yS = r2hSreturn
+	yV = r2hVreturn
+	if(r2hVreturn > 70) {
+	    yxV = r2hVreturn - 30
+	    prV = yxV + 15
+	} else {
+	    yxV = r2hVreturn + 30
+	    prV = yxV - 15
+	}
+    }
     if(r2hHreturn >= 220 && r2hHreturn < 300) {
-//	pr.h=yx.h=y.h=hs.h;
 	prH = r2hHreturn
 	yxH = r2hHreturn
 	yH = r2hHreturn
-//	pr.s=yx.s=y.s=rc(hs.s-60,100);
 	prS = rc(r2hSreturn - 60, 100)
 	yxS = prS
 	yS = yxS
-//	y.v=hs.v;
 	yV = r2hVreturn
-//	if(hs.v>70) {
 	if(r2hVreturn > 70) {
-//	    yx.v=hs.v-30
-//	    pr.v = yx.v +15
 	    yxV = r2hVreturn - 30
 	    prV = yxV + 15
 	} else {
-//	    yx.v=hs.v+30
-//	    pr.v = yx.v -15
 	    yxV = r2hVreturn + 30
 	    prV = yxV - 15
 	}
     }
-
-//    if(hs.h>=300) {
     if(r2hHreturn >= 300) {
-//	if(hs.s>50) {
 	if(r2hSreturn > 50) {
-//	    pr.s=y.s=yx.s=hs.s-40
 	    prS = r2hSreturn - 40
 	} else {
-//	    pr.s=y.s=yx.s=hs.s+40
 	    prS = r2hSreturn + 40
 	}
 	yS = prS
 	yxS = yS
-//	pr.h=yx.h=y.h=(hs.h+20)%360;
-	prH = (r2hSreturn + 20) % 360
-//	y.v=hs.v;
+	prH = (r2hHreturn + 20) % 360
+	yH = prH
+	yxH = yH
 	yV = r2hVreturn
-//	if(hs.v>70) {
 	if(r2hVreturn > 70) {
-//	    yx.v=hs.v-30
-//	    pr.v = yx.v +15
 	    yxV = r2hVreturn - 30
 	    prV = yxV + 15
 	} else {
-//	    yx.v=hs.v+30
-//	    pr.v = yx.v -15
 	    yxV = r2hVreturn + 30
 	    prV = yxV - 15
 	}
     }
 
-
-
-    h2r(type_cast(yH), type_cast(yS), type_cast(yV))
+    h2r(yH, yS, yV)
     color[4][1] = h2rRreturn
     color[4][2] = h2rGreturn
     color[4][3] = h2rBreturn
     send_command dvTP, "'^BCF-12,0,#', format('%02X', color[4][1]), format('%02X', color[4][2]), format('%02X', color[4][3])" 
     send_command dvTP, "'^BMF-13,0,%T#', format('%02X', color[4][1]), format('%02X', color[4][2]), format('%02X', color[4][3])" 
 
-
-    h2r(type_cast(yxH), type_cast(yxS), type_cast(yxV))
+    h2r(yxH, yxS, yxV)
     color[6][1] = h2rRreturn
     color[6][2] = h2rGreturn
     color[6][3] = h2rBreturn
@@ -364,7 +324,7 @@ define_function dom(integer domR, integer domG, integer domB) {
     yH=0
     yS=0
     yV=100-r2hVreturn
-    h2r(type_cast(yH), type_cast(yS), type_cast(yV))
+    h2r(yH, yS, yV)
     color[7][1] = h2rRreturn
     color[7][2] = h2rGreturn
     color[7][3] = h2rBreturn
@@ -374,15 +334,14 @@ define_function dom(integer domR, integer domG, integer domB) {
     yH=0
     yS=0
     yV=r2hVreturn
-    h2r(type_cast(yH), type_cast(yS), type_cast(yV))
+    h2r(yH, yS, yV)
     color[8][1] = h2rRreturn
     color[8][2] = h2rGreturn
     color[8][3] = h2rBreturn
     send_command dvTP, "'^BCF-20,0,#', format('%02X', color[8][1]), format('%02X', color[8][2]), format('%02X', color[8][3])" 
     send_command dvTP, "'^BMF-21,0,%T#', format('%02X', color[8][1]), format('%02X', color[8][2]), format('%02X', color[8][3])" 
 
-
-    h2r(type_cast(prH), type_cast(prS), type_cast(prV))
+    h2r(prH, prS, prV)
     color[5][1] = h2rRreturn
     color[5][2] = h2rGreturn
     color[5][3] = h2rBreturn
