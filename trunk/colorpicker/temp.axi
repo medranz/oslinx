@@ -174,6 +174,7 @@ PROGRAM_NAME='temp'
 //	y.v=hs.v;
 //	z=h2r(y);
 //	ud("7",z);
+
 //	z=h2r(pr);
 //	ud("4",z);
 //	if(hs.v >= 50) { pr.v = 0 } else { pr.v = 100 } 
