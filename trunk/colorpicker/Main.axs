@@ -12,8 +12,8 @@ integer i
 integer levels[3]
 integer color[8][3]	//color value storage in RGB
 
-integer h2r[3]  //because functions can't return arrays; correct?
-float	r2h[3]
+integer h2rReturn[3]  //because functions can't return arrays; correct?
+float	r2hReturn[3]
 
 define_event
 
@@ -31,8 +31,8 @@ level_event[dvTP, 1] level_event[dvTP, 2] level_event[dvTP, 3] {
 (*  Hue, Saturation, & Value to RGB     *)
 (*  Usage: f_h2r(hue, saturation, value)  *)
 (*  Returns integer 1 on success        *)
-(*  RGBs are "returned" in h2r[1],  *)
-(*    h2r[2], h2r[3]            *)
+(*  RGBs are "returned" in h2rReturn[1],  *)
+(*    h2rReturn[2], h2rReturn[3]            *)
 (*  TODO: Can functions return arrays?  *)
 (****************************************)
 define_function integer f_h2r(float h2rhsH, float h2rhsS, float h2rhsV) {
@@ -44,10 +44,10 @@ define_function integer f_h2r(float h2rhsH, float h2rhsS, float h2rhsV) {
     stack_var float q
     stack_var float t
     if(h2rhsS==0) {
-	h2r[1]=type_cast((h2rhsV*2.55) + 0.5)
-	h2r[2]=type_cast((h2rhsV*2.55) + 0.5)
-	h2r[3]=type_cast((h2rhsV*2.55) + 0.5)
-	if((h2r[1] >= 0 && h2r[1] <= 255) && (h2r[2] >= 0 && h2r[2] <= 255) && (h2r[3] >= 0 && h2r[3] <= 255))
+	h2rReturn[1]=type_cast((h2rhsV*2.55) + 0.5)
+	h2rReturn[2]=type_cast((h2rhsV*2.55) + 0.5)
+	h2rReturn[3]=type_cast((h2rhsV*2.55) + 0.5)
+	if((h2rReturn[1] >= 0 && h2rReturn[1] <= 255) && (h2rReturn[2] >= 0 && h2rReturn[2] <= 255) && (h2rReturn[3] >= 0 && h2rReturn[3] <= 255))
 	    return 1
 	else
 	    return 0
@@ -97,10 +97,10 @@ define_function integer f_h2r(float h2rhsH, float h2rhsS, float h2rhsV) {
 	    h2rB=q
 	}
     }
-    h2r[1]=type_cast((h2rR*255) + 0.5)  //round
-    h2r[2]=type_cast((h2rG*255) + 0.5)  //round
-    h2r[3]=type_cast((h2rB*255) + 0.5)  //round
-    if((h2r[1] >= 0 && h2r[1] <= 255) && (h2r[2] >= 0 && h2r[2] <= 255) && (h2r[3] >= 0 && h2r[3] <= 255))
+    h2rReturn[1]=type_cast((h2rR*255) + 0.5)  //round
+    h2rReturn[2]=type_cast((h2rG*255) + 0.5)  //round
+    h2rReturn[3]=type_cast((h2rB*255) + 0.5)  //round
+    if((h2rReturn[1] >= 0 && h2rReturn[1] <= 255) && (h2rReturn[2] >= 0 && h2rReturn[2] <= 255) && (h2rReturn[3] >= 0 && h2rReturn[3] <= 255))
 	return 1
     else
 	return 0
@@ -110,8 +110,8 @@ define_function integer f_h2r(float h2rhsH, float h2rhsS, float h2rhsV) {
 (*  RGB to Hue, Saturation, & Value     *)
 (*  Usage: f_r2h(red, green, blue)        *)
 (*  Returns integer 1 on success        *)
-(*  HSVs are "returned" in r2h[1],  *)
-(*    r2h[2], r2h[3]            *)
+(*  HSVs are "returned" in r2hReturn[1],  *)
+(*    r2hReturn[2], r2hReturn[3]            *)
 (*  TODO: Can functions return arrays?  *)
 (****************************************)
 define_function integer f_r2h(float rgR, float rgG, float rgB) {
@@ -143,10 +143,10 @@ define_function integer f_r2h(float rgR, float rgG, float rgB) {
 	}
 	if(r2hhsH<0.0) r2hhsH=r2hhsH+360
     }
-    r2h[1] = type_cast(r2hhsH + 0.5)
-    r2h[2] = type_cast(r2hhsS)
-    r2h[3] = type_cast(value)
-    if((r2h[1] >= 0 && r2h[1] <= 360) && (r2h[2] >= 0 && r2h[2] <= 100) && (r2h[3] >= 0 && r2h[3] <= 100))
+    r2hReturn[1] = type_cast(r2hhsH + 0.5)
+    r2hReturn[2] = type_cast(r2hhsS)
+    r2hReturn[3] = type_cast(value)
+    if((r2hReturn[1] >= 0 && r2hReturn[1] <= 360) && (r2hReturn[2] >= 0 && r2hReturn[2] <= 100) && (r2hReturn[3] >= 0 && r2hReturn[3] <= 100))
 	return 1
     else
 	return 0
@@ -180,152 +180,152 @@ define_function f_dom(integer dom[3]) {
     send_command dvTP, "'^BCF-4&6,0,#', format('%02X', color[1][1]), format('%02X', color[1][2]), format('%02X', color[1][3])" 
     send_command dvTP, "'^BMF-5&7,0,%T#', format('%02X', color[1][1]), format('%02X', color[1][2]), format('%02X', color[1][3])" 
     f_r2h(type_cast(dom[1]), type_cast(dom[2]), type_cast(dom[3]))
-    yS = r2h[2]
+    yS = r2hReturn[2]
     pS = yS
-    yH = r2h[1]
+    yH = r2hReturn[1]
     pH = yH
-    if(r2h[3] > 70) {
-	yV = r2h[3] - 30
+    if(r2hReturn[3] > 70) {
+	yV = r2hReturn[3] - 30
 	pV = yV + 15
     } else {
-	yV = r2h[3] + 30
+	yV = r2hReturn[3] + 30
 	pV = yV - 15
     }
 
     f_h2r(pH, pS, pV)
-    color[2] = h2r
+    color[2] = h2rReturn
     send_command dvTP, "'^BCF-8,0,#', format('%02X', color[2][1]), format('%02X', color[2][2]), format('%02X', color[2][3])" 
     send_command dvTP, "'^BMF-9,0,%T#', format('%02X', color[2][1]), format('%02X', color[2][2]), format('%02X', color[2][3])" 
 
     f_h2r(yH, yS, yV)
-    color[3] = h2r
+    color[3] = h2rReturn
     send_command dvTP, "'^BCF-10,0,#', format('%02X', color[3][1]), format('%02X', color[3][2]), format('%02X', color[3][3])" 
     send_command dvTP, "'^BMF-11,0,%T#', format('%02X', color[3][1]), format('%02X', color[3][2]), format('%02X', color[3][3])" 
 
-    if(r2h[1] >= 0 && r2h[1] < 30) {
-	prH = r2h[1] + 20
-	yxH = r2h[1] + 20
-	yH = r2h[1] + 20
-	prS = r2h[2]
-	yxS = r2h[2]
-	yS = r2h[2]
-	yv = r2h[3]
-	if(r2h[3] > 70 ) {
-	    yxV = r2h[3] - 30
+    if(r2hReturn[1] >= 0 && r2hReturn[1] < 30) {
+	prH = r2hReturn[1] + 20
+	yxH = r2hReturn[1] + 20
+	yH = r2hReturn[1] + 20
+	prS = r2hReturn[2]
+	yxS = r2hReturn[2]
+	yS = r2hReturn[2]
+	yv = r2hReturn[3]
+	if(r2hReturn[3] > 70 ) {
+	    yxV = r2hReturn[3] - 30
 	    prV = yxV + 15
 	} else {
-	    yxV = r2h[3] + 30
+	    yxV = r2hReturn[3] + 30
 	    prV = yxV - 15
 	}
     }
-    if(r2h[1] >= 30 && r2h[1] < 60) {
-	prH = r2h[1] + 150
-	yxH = r2h[1] + 150
-	yH = r2h[1] + 150
-	yS = rc(r2h[1] - 30, 100)
-	yV = rc(r2h[3] - 20, 100)
-	yxS = rc(r2h[2] - 70, 100)
-	prS = rc(r2h[2] - 70, 100)
-	yxV = rc(r2h[3] + 20, 100)
-	prV = r2h[3]
+    if(r2hReturn[1] >= 30 && r2hReturn[1] < 60) {
+	prH = r2hReturn[1] + 150
+	yxH = r2hReturn[1] + 150
+	yH = r2hReturn[1] + 150
+	yS = rc(r2hReturn[1] - 30, 100)
+	yV = rc(r2hReturn[3] - 20, 100)
+	yxS = rc(r2hReturn[2] - 70, 100)
+	prS = rc(r2hReturn[2] - 70, 100)
+	yxV = rc(r2hReturn[3] + 20, 100)
+	prV = r2hReturn[3]
     }
-    if(r2h[1] >= 60 && r2h[1] < 180) {
-	prH = r2h[1] - 40
-	yxH = r2h[1] - 40
-	yH = r2h[1] - 40
-	prS = r2h[2]
-	yS = r2h[2]
-	yxS = r2h[2]
-	yV = r2h[3]
-	if(r2h[3] > 70) {
-	    yxV = r2h[3] - 30
+    if(r2hReturn[1] >= 60 && r2hReturn[1] < 180) {
+	prH = r2hReturn[1] - 40
+	yxH = r2hReturn[1] - 40
+	yH = r2hReturn[1] - 40
+	prS = r2hReturn[2]
+	yS = r2hReturn[2]
+	yxS = r2hReturn[2]
+	yV = r2hReturn[3]
+	if(r2hReturn[3] > 70) {
+	    yxV = r2hReturn[3] - 30
 	    prV = yxV + 15
 	} else {
-	    yxV = r2h[3] + 30
+	    yxV = r2hReturn[3] + 30
 	    prV = yxV - 15
 	}
     }
-    if(r2h[1] >= 180 && r2h[1] < 220) {
-	prH = r2h[1] - 170
-	yxH = r2h[1] - 170
-	yH = r2h[1] - 160
-	prS = r2h[2]
-	yxS = r2h[2]
-	yS = r2h[2]
-	yV = r2h[3]
-	if(r2h[3] > 70) {
-	    yxV = r2h[3] - 30
+    if(r2hReturn[1] >= 180 && r2hReturn[1] < 220) {
+	prH = r2hReturn[1] - 170
+	yxH = r2hReturn[1] - 170
+	yH = r2hReturn[1] - 160
+	prS = r2hReturn[2]
+	yxS = r2hReturn[2]
+	yS = r2hReturn[2]
+	yV = r2hReturn[3]
+	if(r2hReturn[3] > 70) {
+	    yxV = r2hReturn[3] - 30
 	    prV = yxV + 15
 	} else {
-	    yxV = r2h[3] + 30
+	    yxV = r2hReturn[3] + 30
 	    prV = yxV - 15
 	}
     }
-    if(r2h[1] >= 220 && r2h[1] < 300) {
-	prH = r2h[1]
-	yxH = r2h[1]
-	yH = r2h[1]
-	prS = rc(r2h[2] - 60, 100)
+    if(r2hReturn[1] >= 220 && r2hReturn[1] < 300) {
+	prH = r2hReturn[1]
+	yxH = r2hReturn[1]
+	yH = r2hReturn[1]
+	prS = rc(r2hReturn[2] - 60, 100)
 	yxS = prS
 	yS = yxS
-	yV = r2h[3]
-	if(r2h[3] > 70) {
-	    yxV = r2h[3] - 30
+	yV = r2hReturn[3]
+	if(r2hReturn[3] > 70) {
+	    yxV = r2hReturn[3] - 30
 	    prV = yxV + 15
 	} else {
-	    yxV = r2h[3] + 30
+	    yxV = r2hReturn[3] + 30
 	    prV = yxV - 15
 	}
     }
-    if(r2h[1] >= 300) {
-	if(r2h[2] > 50) {
-	    prS = r2h[2] - 40
+    if(r2hReturn[1] >= 300) {
+	if(r2hReturn[2] > 50) {
+	    prS = r2hReturn[2] - 40
 	} else {
-	    prS = r2h[2] + 40
+	    prS = r2hReturn[2] + 40
 	}
 	yS = prS
 	yxS = yS
-	prH = (r2h[1] + 20) % 360
+	prH = (r2hReturn[1] + 20) % 360
 	yH = prH
 	yxH = yH
-	yV = r2h[3]
-	if(r2h[3] > 70) {
-	    yxV = r2h[3] - 30
+	yV = r2hReturn[3]
+	if(r2hReturn[3] > 70) {
+	    yxV = r2hReturn[3] - 30
 	    prV = yxV + 15
 	} else {
-	    yxV = r2h[3] + 30
+	    yxV = r2hReturn[3] + 30
 	    prV = yxV - 15
 	}
     }
 
     f_h2r(yH, yS, yV)
-    color[4] = h2r
+    color[4] = h2rReturn
     send_command dvTP, "'^BCF-12,0,#', format('%02X', color[4][1]), format('%02X', color[4][2]), format('%02X', color[4][3])" 
     send_command dvTP, "'^BMF-13,0,%T#', format('%02X', color[4][1]), format('%02X', color[4][2]), format('%02X', color[4][3])" 
 
     f_h2r(yxH, yxS, yxV)
-    color[6] = h2r
+    color[6] = h2rReturn
     send_command dvTP, "'^BCF-16,0,#', format('%02X', color[6][1]), format('%02X', color[6][2]), format('%02X', color[6][3])" 
     send_command dvTP, "'^BMF-17,0,%T#', format('%02X', color[6][1]), format('%02X', color[6][2]), format('%02X', color[6][3])" 
 
     yH=0
     yS=0
-    yV=100-r2h[3]
+    yV=100-r2hReturn[3]
     f_h2r(yH, yS, yV)
-    color[7] = h2r
+    color[7] = h2rReturn
     send_command dvTP, "'^BCF-18,0,#', format('%02X', color[7][1]), format('%02X', color[7][2]), format('%02X', color[7][3])" 
     send_command dvTP, "'^BMF-19,0,%T#', format('%02X', color[7][1]), format('%02X', color[7][2]), format('%02X', color[7][3])" 
 
     yH=0
     yS=0
-    yV=r2h[3]
+    yV=r2hReturn[3]
     f_h2r(yH, yS, yV)
-    color[8] = h2r
+    color[8] = h2rReturn
     send_command dvTP, "'^BCF-20,0,#', format('%02X', color[8][1]), format('%02X', color[8][2]), format('%02X', color[8][3])" 
     send_command dvTP, "'^BMF-21,0,%T#', format('%02X', color[8][1]), format('%02X', color[8][2]), format('%02X', color[8][3])" 
 
     f_h2r(prH, prS, prV)
-    color[5] = h2r
+    color[5] = h2rReturn
     send_command dvTP, "'^BCF-14,0,#', format('%02X', color[5][1]), format('%02X', color[5][2]), format('%02X', color[5][3])" 
     send_command dvTP, "'^BMF-15,0,%T#', format('%02X', color[5][1]), format('%02X', color[5][2]), format('%02X', color[5][3])" 
 
