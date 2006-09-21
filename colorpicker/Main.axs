@@ -156,170 +156,158 @@ define_function float rc(float x, float m) {
 }
 
 define_function f_dom(integer dom[3]) {
-    stack_var float pH
-    stack_var float pS
-    stack_var float pV
-    stack_var float yH
-    stack_var float yS
-    stack_var float yV
-    stack_var float prH
-    stack_var float prS
-    stack_var float prV
-    stack_var float yxH
-    stack_var float yxS
-    stack_var float yxV
+    stack_var float p[3]
+    stack_var float y[3]
+    stack_var float pr[3]
+    stack_var float yx[3]
+    stack_var float x[3]
     color[1] = dom
-    send_command dvTP, "'^BCF-4&6,0,#', format('%02X', color[1][1]), format('%02X', color[1][2]), format('%02X', color[1][3])" 
-    send_command dvTP, "'^BMF-5&7,0,%T#', format('%02X', color[1][1]), format('%02X', color[1][2]), format('%02X', color[1][3])" 
+    uButton(1)
+    x[1] = type_cast(dom[1])
+    x[2] = type_cast(dom[2])
+    x[3] = type_cast(dom[3])
     f_r2h(type_cast(dom[1]), type_cast(dom[2]), type_cast(dom[3]))
-    yS = r2hReturn[2]
-    pS = yS
-    yH = r2hReturn[1]
-    pH = yH
+    y[2] = r2hReturn[2]
+    p[2] = y[2]
+    y[1] = r2hReturn[1]
+    p[1] = y[1]
     if(r2hReturn[3] > 70) {
-	yV = r2hReturn[3] - 30
-	pV = yV + 15
+	y[3] = r2hReturn[3] - 30
+	p[3] = y[3] + 15
     } else {
-	yV = r2hReturn[3] + 30
-	pV = yV - 15
+	y[3] = r2hReturn[3] + 30
+	p[3] = y[3] - 15
     }
 
-    f_h2r(pH, pS, pV)
+    f_h2r(p[1], p[2], p[3])
     color[2] = h2rReturn
-    send_command dvTP, "'^BCF-8,0,#', format('%02X', color[2][1]), format('%02X', color[2][2]), format('%02X', color[2][3])" 
-    send_command dvTP, "'^BMF-9,0,%T#', format('%02X', color[2][1]), format('%02X', color[2][2]), format('%02X', color[2][3])" 
+    uButton(2)
 
-    f_h2r(yH, yS, yV)
+    f_h2r(y[1], y[2], y[3])
     color[3] = h2rReturn
-    send_command dvTP, "'^BCF-10,0,#', format('%02X', color[3][1]), format('%02X', color[3][2]), format('%02X', color[3][3])" 
-    send_command dvTP, "'^BMF-11,0,%T#', format('%02X', color[3][1]), format('%02X', color[3][2]), format('%02X', color[3][3])" 
+    uButton(3)
 
     if(r2hReturn[1] >= 0 && r2hReturn[1] < 30) {
-	prH = r2hReturn[1] + 20
-	yxH = r2hReturn[1] + 20
-	yH = r2hReturn[1] + 20
-	prS = r2hReturn[2]
-	yxS = r2hReturn[2]
-	yS = r2hReturn[2]
-	yv = r2hReturn[3]
+	pr[1] = r2hReturn[1] + 20
+	yx[1] = r2hReturn[1] + 20
+	y[1] = r2hReturn[1] + 20
+	pr[2] = r2hReturn[2]
+	yx[2] = r2hReturn[2]
+	y[2] = r2hReturn[2]
+	y[3] = r2hReturn[3]
 	if(r2hReturn[3] > 70 ) {
-	    yxV = r2hReturn[3] - 30
-	    prV = yxV + 15
+	    yx[3] = r2hReturn[3] - 30
+	    pr[3] = yx[3] + 15
 	} else {
-	    yxV = r2hReturn[3] + 30
-	    prV = yxV - 15
+	    yx[3] = r2hReturn[3] + 30
+	    pr[3] = yx[3] - 15
 	}
     }
     if(r2hReturn[1] >= 30 && r2hReturn[1] < 60) {
-	prH = r2hReturn[1] + 150
-	yxH = r2hReturn[1] + 150
-	yH = r2hReturn[1] + 150
-	yS = rc(r2hReturn[1] - 30, 100)
-	yV = rc(r2hReturn[3] - 20, 100)
-	yxS = rc(r2hReturn[2] - 70, 100)
-	prS = rc(r2hReturn[2] - 70, 100)
-	yxV = rc(r2hReturn[3] + 20, 100)
-	prV = r2hReturn[3]
+	pr[1] = r2hReturn[1] + 150
+	yx[1] = r2hReturn[1] + 150
+	y[1] = r2hReturn[1] + 150
+	y[2] = rc(r2hReturn[1] - 30, 100)
+	y[3] = rc(r2hReturn[3] - 20, 100)
+	yx[2] = rc(r2hReturn[2] - 70, 100)
+	pr[2] = rc(r2hReturn[2] - 70, 100)
+	yx[3] = rc(r2hReturn[3] + 20, 100)
+	pr[3] = r2hReturn[3]
     }
     if(r2hReturn[1] >= 60 && r2hReturn[1] < 180) {
-	prH = r2hReturn[1] - 40
-	yxH = r2hReturn[1] - 40
-	yH = r2hReturn[1] - 40
-	prS = r2hReturn[2]
-	yS = r2hReturn[2]
-	yxS = r2hReturn[2]
-	yV = r2hReturn[3]
+	pr[1] = r2hReturn[1] - 40
+	yx[1] = r2hReturn[1] - 40
+	y[1] = r2hReturn[1] - 40
+	pr[2] = r2hReturn[2]
+	y[2] = r2hReturn[2]
+	yx[2] = r2hReturn[2]
+	y[3] = r2hReturn[3]
 	if(r2hReturn[3] > 70) {
-	    yxV = r2hReturn[3] - 30
-	    prV = yxV + 15
+	    yx[3] = r2hReturn[3] - 30
+	    pr[3] = yx[3] + 15
 	} else {
-	    yxV = r2hReturn[3] + 30
-	    prV = yxV - 15
+	    yx[3] = r2hReturn[3] + 30
+	    pr[3] = yx[3] - 15
 	}
     }
     if(r2hReturn[1] >= 180 && r2hReturn[1] < 220) {
-	prH = r2hReturn[1] - 170
-	yxH = r2hReturn[1] - 170
-	yH = r2hReturn[1] - 160
-	prS = r2hReturn[2]
-	yxS = r2hReturn[2]
-	yS = r2hReturn[2]
-	yV = r2hReturn[3]
+	pr[1] = r2hReturn[1] - 170
+	yx[1] = r2hReturn[1] - 170
+	y[1] = r2hReturn[1] - 160
+	pr[2] = r2hReturn[2]
+	yx[2] = r2hReturn[2]
+	y[2] = r2hReturn[2]
+	y[3] = r2hReturn[3]
 	if(r2hReturn[3] > 70) {
-	    yxV = r2hReturn[3] - 30
-	    prV = yxV + 15
+	    yx[3] = r2hReturn[3] - 30
+	    pr[3] = yx[3] + 15
 	} else {
-	    yxV = r2hReturn[3] + 30
-	    prV = yxV - 15
+	    yx[3] = r2hReturn[3] + 30
+	    pr[3] = yx[3] - 15
 	}
     }
     if(r2hReturn[1] >= 220 && r2hReturn[1] < 300) {
-	prH = r2hReturn[1]
-	yxH = r2hReturn[1]
-	yH = r2hReturn[1]
-	prS = rc(r2hReturn[2] - 60, 100)
-	yxS = prS
-	yS = yxS
-	yV = r2hReturn[3]
+	pr[1] = r2hReturn[1]
+	yx[1] = r2hReturn[1]
+	y[1] = r2hReturn[1]
+	pr[2] = rc(r2hReturn[2] - 60, 100)
+	yx[2] = pr[2]
+	y[2] = yx[2]
+	y[3] = r2hReturn[3]
 	if(r2hReturn[3] > 70) {
-	    yxV = r2hReturn[3] - 30
-	    prV = yxV + 15
+	    yx[3] = r2hReturn[3] - 30
+	    pr[3] = yx[3] + 15
 	} else {
-	    yxV = r2hReturn[3] + 30
-	    prV = yxV - 15
+	    yx[3] = r2hReturn[3] + 30
+	    pr[3] = yx[3] - 15
 	}
     }
     if(r2hReturn[1] >= 300) {
 	if(r2hReturn[2] > 50) {
-	    prS = r2hReturn[2] - 40
+	    pr[2] = r2hReturn[2] - 40
 	} else {
-	    prS = r2hReturn[2] + 40
+	    pr[2] = r2hReturn[2] + 40
 	}
-	yS = prS
-	yxS = yS
-	prH = (r2hReturn[1] + 20) % 360
-	yH = prH
-	yxH = yH
-	yV = r2hReturn[3]
+	y[2] = pr[2]
+	yx[2] = y[2]
+	pr[1] = (r2hReturn[1] + 20) % 360
+	y[1] = pr[1]
+	yx[1] = y[1]
+	y[3] = r2hReturn[3]
 	if(r2hReturn[3] > 70) {
-	    yxV = r2hReturn[3] - 30
-	    prV = yxV + 15
+	    yx[3] = r2hReturn[3] - 30
+	    pr[3] = yx[3] + 15
 	} else {
-	    yxV = r2hReturn[3] + 30
-	    prV = yxV - 15
+	    yx[3] = r2hReturn[3] + 30
+	    pr[3] = yx[3] - 15
 	}
     }
 
-    f_h2r(yH, yS, yV)
+    f_h2r(y[1], y[2], y[3])
     color[4] = h2rReturn
-    send_command dvTP, "'^BCF-12,0,#', format('%02X', color[4][1]), format('%02X', color[4][2]), format('%02X', color[4][3])" 
-    send_command dvTP, "'^BMF-13,0,%T#', format('%02X', color[4][1]), format('%02X', color[4][2]), format('%02X', color[4][3])" 
+    uButton(4)
 
-    f_h2r(yxH, yxS, yxV)
+    f_h2r(yx[1], yx[2], yx[3])
     color[6] = h2rReturn
-    send_command dvTP, "'^BCF-16,0,#', format('%02X', color[6][1]), format('%02X', color[6][2]), format('%02X', color[6][3])" 
-    send_command dvTP, "'^BMF-17,0,%T#', format('%02X', color[6][1]), format('%02X', color[6][2]), format('%02X', color[6][3])" 
+    uButton(6)
 
-    yH=0
-    yS=0
-    yV=100-r2hReturn[3]
-    f_h2r(yH, yS, yV)
+    y[1]=0
+    y[2]=0
+    y[3]=100-r2hReturn[3]
+    f_h2r(y[1], y[2], y[3])
     color[7] = h2rReturn
-    send_command dvTP, "'^BCF-18,0,#', format('%02X', color[7][1]), format('%02X', color[7][2]), format('%02X', color[7][3])" 
-    send_command dvTP, "'^BMF-19,0,%T#', format('%02X', color[7][1]), format('%02X', color[7][2]), format('%02X', color[7][3])" 
+    uButton(7)
 
-    yH=0
-    yS=0
-    yV=r2hReturn[3]
-    f_h2r(yH, yS, yV)
+    y[1]=0
+    y[2]=0
+    y[3]=r2hReturn[3]
+    f_h2r(y[1], y[2], y[3])
     color[8] = h2rReturn
-    send_command dvTP, "'^BCF-20,0,#', format('%02X', color[8][1]), format('%02X', color[8][2]), format('%02X', color[8][3])" 
-    send_command dvTP, "'^BMF-21,0,%T#', format('%02X', color[8][1]), format('%02X', color[8][2]), format('%02X', color[8][3])" 
+    uButton(8)
 
-    f_h2r(prH, prS, prV)
+    f_h2r(pr[1], pr[2], pr[3])
     color[5] = h2rReturn
-    send_command dvTP, "'^BCF-14,0,#', format('%02X', color[5][1]), format('%02X', color[5][2]), format('%02X', color[5][3])" 
-    send_command dvTP, "'^BMF-15,0,%T#', format('%02X', color[5][1]), format('%02X', color[5][2]), format('%02X', color[5][3])" 
+    uButton(5)
 
 //todo: decide on this crap
 //    if(hs.v >= 50) { pr.v = 0 } else { pr.v = 100 } 
@@ -329,4 +317,7 @@ define_function f_dom(integer dom[3]) {
 
 }
 
-
+define_function uButton (integer colorNum) {
+    send_command dvTP, "'^BCF-', itoa(colorNum + 9) ,',0,#', format('%02X', color[colorNum][1]), format('%02X', color[colorNum][2]), format('%02X', color[colorNum][3])" 
+    send_command dvTP, "'^BMF-', itoa(colorNum + 19) ,',0,%T#', format('%02X', color[colorNum][1]), format('%02X', color[colorNum][2]), format('%02X', color[colorNum][3])" 
+}
