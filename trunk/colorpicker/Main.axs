@@ -19,10 +19,8 @@ define_event
 
 level_event[dvTP, 1] level_event[dvTP, 2] level_event[dvTP, 3] {
     levels[level.input.level] = level.value
-    //filter dragging
-    cancel_wait 'level_change'  
+    cancel_wait 'level_change'      //filter dragging
     wait 5 'level_change' {
-//	dom(levels[1], levels[2], levels[3])
 	f_dom(levels)
     }
 }
