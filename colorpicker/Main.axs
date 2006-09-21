@@ -12,7 +12,7 @@ integer i
 integer levels[3]
 integer color[8][3]	//color value storage in RGB
 
-integer h2rReturn[3]  //because functions can't return arrays; correct?
+integer h2rReturn[3]	//because functions can't return arrays; correct?
 float	r2hReturn[3]
 
 define_event
@@ -25,18 +25,15 @@ level_event[dvTP, 1] level_event[dvTP, 2] level_event[dvTP, 3] {
     }
 }
 
-(****************************************)
-(*  Hue, Saturation, & Value to RGB     *)
-(*  Usage: f_h2r(hue, saturation, value)  *)
-(*  Returns integer 1 on success        *)
-(*  RGBs are "returned" in h2rReturn[1],  *)
-(*    h2rReturn[2], h2rReturn[3]            *)
-(*  TODO: Can functions return arrays?  *)
-(****************************************)
+(*****************************************)
+(*  Hue, Saturation, & Value to RGB      *)
+(*  Usage: f_h2r(hue, saturation, value) *)
+(*  Returns integer 1 on success         *)
+(*  RGBs are "returned" in h2rReturn     *)
+(*  TODO: Can functions return arrays?   *)
+(*****************************************)
 define_function integer f_h2r(float h2rhsH, float h2rhsS, float h2rhsV) {
-    stack_var float h2rR
-    stack_var float h2rG
-    stack_var float h2rB
+    stack_var float h2r[3]
     stack_var float f
     stack_var float p
     stack_var float q
@@ -60,44 +57,44 @@ define_function integer f_h2r(float h2rhsH, float h2rhsS, float h2rhsV) {
     t=h2rhsV*(1-h2rhsS*(1-f))
     switch(i) {
 	case 0: {
-	    h2rR=h2rhsV
-	    h2rG=t
-	    h2rB=p
+	    h2r[1]=h2rhsV
+	    h2r[2]=t
+	    h2r[3]=p
 	    break
 	}
 	case 1: {
-	    h2rR=q
-	    h2rG=h2rhsV
-	    h2rB=p
+	    h2r[1]=q
+	    h2r[2]=h2rhsV
+	    h2r[3]=p
 	    break
 	}
 	case 2: {
-	    h2rR=p;
-	    h2rG=h2rhsV;
-	    h2rB=t;
+	    h2r[1]=p;
+	    h2r[2]=h2rhsV;
+	    h2r[3]=t;
 	    break
 	}
 	case 3: {
-	    h2rR=p
-	    h2rG=q
-	    h2rB=h2rhsV
+	    h2r[1]=p
+	    h2r[2]=q
+	    h2r[3]=h2rhsV
 	    break
 	}
 	case 4: {
-	    h2rR=t
-	    h2rG=p
-	    h2rB=h2rhsV
+	    h2r[1]=t
+	    h2r[2]=p
+	    h2r[3]=h2rhsV
 	    break
 	}
 	default: {
-	    h2rR=h2rhsV
-	    h2rG=p
-	    h2rB=q
+	    h2r[1]=h2rhsV
+	    h2r[2]=p
+	    h2r[3]=q
 	}
     }
-    h2rReturn[1]=type_cast((h2rR*255) + 0.5)  //round
-    h2rReturn[2]=type_cast((h2rG*255) + 0.5)  //round
-    h2rReturn[3]=type_cast((h2rB*255) + 0.5)  //round
+    h2rReturn[1]=type_cast((h2r[1]*255) + 0.5)  //round
+    h2rReturn[2]=type_cast((h2r[2]*255) + 0.5)  //round
+    h2rReturn[3]=type_cast((h2r[3]*255) + 0.5)  //round
     if((h2rReturn[1] >= 0 && h2rReturn[1] <= 255) && (h2rReturn[2] >= 0 && h2rReturn[2] <= 255) && (h2rReturn[3] >= 0 && h2rReturn[3] <= 255))
 	return 1
     else
@@ -106,16 +103,13 @@ define_function integer f_h2r(float h2rhsH, float h2rhsS, float h2rhsV) {
 
 (****************************************)
 (*  RGB to Hue, Saturation, & Value     *)
-(*  Usage: f_r2h(red, green, blue)        *)
+(*  Usage: f_r2h(red, green, blue)      *)
 (*  Returns integer 1 on success        *)
-(*  HSVs are "returned" in r2hReturn[1],  *)
-(*    r2hReturn[2], r2hReturn[3]            *)
+(*  HSVs are "returned" in r2hReturn    *)
 (*  TODO: Can functions return arrays?  *)
 (****************************************)
 define_function integer f_r2h(float rgR, float rgG, float rgB) {
-    stack_var float r2hhsS
-    stack_var float r2hhsV
-    stack_var float r2hhsH
+    stack_var float r2h[3]
     stack_var float m
     stack_var float v
     stack_var float value
@@ -128,21 +122,21 @@ define_function integer f_r2h(float rgR, float rgG, float rgB) {
     if(rgB>v) v=rgB
     value=100*v/255
     delta=v-m
-    if(v==0.0) r2hhsS=0 else r2hhsS=100*delta/v
-    if(r2hhsS==0) {
-	r2hhsH=0
+    if(v==0.0) r2h[2]=0 else r2h[2]=100*delta/v
+    if(r2h[2]==0) {
+	r2h[1]=0
     } else {
 	if(rgR==v) {
-	    r2hhsH=(60*(rgG-rgB))/delta
+	    r2h[1]=(60*(rgG-rgB))/delta
 	} else if(rgG==v) {
-	    r2hhsH=120+((60*(rgB-rgR))/delta)
+	    r2h[1]=120+((60*(rgB-rgR))/delta)
 	} else if(rgB=v) {
-	    r2hhsH=240+((60*(rgR-rgG))/delta)
+	    r2h[1]=240+((60*(rgR-rgG))/delta)
 	}
-	if(r2hhsH<0.0) r2hhsH=r2hhsH+360
+	if(r2h[1]<0.0) r2h[1]=r2h[1]+360
     }
-    r2hReturn[1] = type_cast(r2hhsH + 0.5)
-    r2hReturn[2] = type_cast(r2hhsS)
+    r2hReturn[1] = type_cast(r2h[1] + 0.5)
+    r2hReturn[2] = type_cast(r2h[2])
     r2hReturn[3] = type_cast(value)
     if((r2hReturn[1] >= 0 && r2hReturn[1] <= 360) && (r2hReturn[2] >= 0 && r2hReturn[2] <= 100) && (r2hReturn[3] >= 0 && r2hReturn[3] <= 100))
 	return 1
