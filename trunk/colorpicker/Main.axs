@@ -6,22 +6,61 @@ dvTP = 10001:1:1
 
 define_variable
 
-char	cdebug[255]
-
-integer i
-integer levels[3]
-integer color[8][3]	//color value storage in RGB
+volatile   integer i
+volatile   integer levels[3]
+persistent integer color[8][3]	//color value storage in RGB
 
 integer h2rReturn[3]	//because functions can't return arrays; correct?
 float	r2hReturn[3]
 
 define_event
 
+data_event[dvTP] {
+    online: {
+	for(i=1;i<4;i++) send_level dvTP, i, (color[1][i])
+    }
+}
+
 level_event[dvTP, 1] level_event[dvTP, 2] level_event[dvTP, 3] {
     levels[level.input.level] = level.value
     cancel_wait 'level_change'      //filter dragging
     wait 5 'level_change' {
 	f_dom(levels)
+    }
+}
+
+button_event[dvTP, 11] button_event[dvTP, 12] button_event[dvTP, 13] button_event[dvTP, 14]
+button_event[dvTP, 15] button_event[dvTP, 16] button_event[dvTP, 17] {
+    push: {
+	for(i=1;i<4;i++) send_level dvTP, i, (color[button.input.channel-9][i])
+    }
+}
+
+button_event[dvTP, 4] button_event[dvTP, 5] {  //example only
+    push: {
+	//numpad & dirpad
+	send_command dvTP, "'^BMF-108.122,0,%CB#', format('%02X', color[1][1]), format('%02X', color[1][2]), format('%02X', color[1][3]),  //border
+	    '%CF#', format('%02X', color[4][1]), format('%02X', color[4][2]), format('%02X', color[4][3]),	//fill
+	    '%CT#', format('%02X', color[8][1]), format('%02X', color[8][2]), format('%02X', color[8][3]),	//text
+	    '%EC#', format('%02X', color[7][1]), format('%02X', color[7][2]), format('%02X', color[7][3])"	//text effect
+	//side bar
+	send_command dvTP, "'^BMF-101.107,0,%CB#', format('%02X', color[2][1]), format('%02X', color[2][2]), format('%02X', color[2][3]),  //border
+	    '%CF#', format('%02X', color[1][1]), format('%02X', color[1][2]), format('%02X', color[1][3]),	//fill
+	    '%CT#', format('%02X', color[8][1]), format('%02X', color[8][2]), format('%02X', color[8][3]),	//text
+	    '%EC#', format('%02X', color[7][1]), format('%02X', color[7][2]), format('%02X', color[7][3])"	//text effect
+	//background
+	send_command dvTP, "'^BMF-100,0,%CB#', format('%02X', color[4][1]), format('%02X', color[4][2]), format('%02X', color[4][3]),  //border
+	    '%CF#', format('%02X', color[6][1]), format('%02X', color[6][2]), format('%02X', color[6][3]),	//fill
+	    '%CT#', format('%02X', color[8][1]), format('%02X', color[8][2]), format('%02X', color[8][3]),	//text
+	    '%EC#', format('%02X', color[7][1]), format('%02X', color[7][2]), format('%02X', color[7][3])"	//text effect
+	//transport container
+	send_command dvTP, "'^BMF-124,0,%CB#', format('%02X', color[4][1]), format('%02X', color[4][2]), format('%02X', color[4][3]),  //border
+	    '%CF#', format('%02X', color[5][1]), format('%02X', color[5][2]), format('%02X', color[5][3]),	//fill
+	    '%CT#', format('%02X', color[8][1]), format('%02X', color[8][2]), format('%02X', color[8][3]),	//text
+	    '%EC#', format('%02X', color[7][1]), format('%02X', color[7][2]), format('%02X', color[7][3])"	//text effect
+	//titles
+	send_command dvTP, "'^BMF-123&125,0,%CT#', format('%02X', color[8][1]), format('%02X', color[8][2]), format('%02X', color[8][3]),	//text
+	    '%EC#', format('%02X', color[7][1]), format('%02X', color[7][2]), format('%02X', color[7][3])"	//text effect
     }
 }
 
@@ -32,62 +71,62 @@ level_event[dvTP, 1] level_event[dvTP, 2] level_event[dvTP, 3] {
 (*  RGBs are "returned" in h2rReturn     *)
 (*  TODO: Can functions return arrays?   *)
 (*****************************************)
-define_function integer f_h2r(float h2rhsH, float h2rhsS, float h2rhsV) {
+define_function integer f_h2r(float fh2r[3]) {
     stack_var float h2r[3]
     stack_var float f
     stack_var float p
     stack_var float q
     stack_var float t
-    if(h2rhsS==0) {
-	h2rReturn[1]=type_cast((h2rhsV*2.55) + 0.5)
-	h2rReturn[2]=type_cast((h2rhsV*2.55) + 0.5)
-	h2rReturn[3]=type_cast((h2rhsV*2.55) + 0.5)
+    if(fh2r[2]==0) {
+	h2rReturn[1]=type_cast((fh2r[3]*2.55) + 0.5)
+	h2rReturn[2]=type_cast((fh2r[3]*2.55) + 0.5)
+	h2rReturn[3]=type_cast((fh2r[3]*2.55) + 0.5)
 	if((h2rReturn[1] >= 0 && h2rReturn[1] <= 255) && (h2rReturn[2] >= 0 && h2rReturn[2] <= 255) && (h2rReturn[3] >= 0 && h2rReturn[3] <= 255))
 	    return 1
 	else
 	    return 0
     }
-    h2rhsS=h2rhsS/100
-    h2rhsV=h2rhsV/100
-    h2rhsH=h2rhsH/60
-    i=type_cast(h2rhsH)  //round to but not higher
-    f=h2rhsH-i
-    p=h2rhsV*(1-h2rhsS)
-    q=h2rhsV*(1-h2rhsS*f)
-    t=h2rhsV*(1-h2rhsS*(1-f))
+    fh2r[2]=fh2r[2]/100
+    fh2r[3]=fh2r[3]/100
+    fh2r[1]=fh2r[1]/60
+    i=type_cast(fh2r[1])  //round to but not higher
+    f=fh2r[1]-i
+    p=fh2r[3]*(1-fh2r[2])
+    q=fh2r[3]*(1-fh2r[2]*f)
+    t=fh2r[3]*(1-fh2r[2]*(1-f))
     switch(i) {
 	case 0: {
-	    h2r[1]=h2rhsV
+	    h2r[1]=fh2r[3]
 	    h2r[2]=t
 	    h2r[3]=p
 	    break
 	}
 	case 1: {
 	    h2r[1]=q
-	    h2r[2]=h2rhsV
+	    h2r[2]=fh2r[3]
 	    h2r[3]=p
 	    break
 	}
 	case 2: {
 	    h2r[1]=p;
-	    h2r[2]=h2rhsV;
+	    h2r[2]=fh2r[3];
 	    h2r[3]=t;
 	    break
 	}
 	case 3: {
 	    h2r[1]=p
 	    h2r[2]=q
-	    h2r[3]=h2rhsV
+	    h2r[3]=fh2r[3]
 	    break
 	}
 	case 4: {
 	    h2r[1]=t
 	    h2r[2]=p
-	    h2r[3]=h2rhsV
+	    h2r[3]=fh2r[3]
 	    break
 	}
 	default: {
-	    h2r[1]=h2rhsV
+	    h2r[1]=fh2r[3]
 	    h2r[2]=p
 	    h2r[3]=q
 	}
@@ -108,30 +147,30 @@ define_function integer f_h2r(float h2rhsH, float h2rhsS, float h2rhsV) {
 (*  HSVs are "returned" in r2hReturn    *)
 (*  TODO: Can functions return arrays?  *)
 (****************************************)
-define_function integer f_r2h(float rgR, float rgG, float rgB) {
+define_function integer f_r2h(float fr2h[3]) {
     stack_var float r2h[3]
     stack_var float m
     stack_var float v
     stack_var float value
     stack_var float delta
-    m=rgR
-    if(rgG<m) m=rgG
-    if(rgB<m) m=rgB
-    v=rgR
-    if(rgG>v) v=rgG
-    if(rgB>v) v=rgB
+    m=fr2h[1]
+    if(fr2h[2]<m) m=fr2h[2]
+    if(fr2h[3]<m) m=fr2h[3]
+    v=fr2h[1]
+    if(fr2h[2]>v) v=fr2h[2]
+    if(fr2h[3]>v) v=fr2h[3]
     value=100*v/255
     delta=v-m
     if(v==0.0) r2h[2]=0 else r2h[2]=100*delta/v
     if(r2h[2]==0) {
 	r2h[1]=0
     } else {
-	if(rgR==v) {
-	    r2h[1]=(60*(rgG-rgB))/delta
-	} else if(rgG==v) {
-	    r2h[1]=120+((60*(rgB-rgR))/delta)
-	} else if(rgB=v) {
-	    r2h[1]=240+((60*(rgR-rgG))/delta)
+	if(fr2h[1]==v) {
+	    r2h[1]=(60*(fr2h[2]-fr2h[3]))/delta
+	} else if(fr2h[2]==v) {
+	    r2h[1]=120+((60*(fr2h[3]-fr2h[1]))/delta)
+	} else if(fr2h[3]=v) {
+	    r2h[1]=240+((60*(fr2h[1]-fr2h[2]))/delta)
 	}
 	if(r2h[1]<0.0) r2h[1]=r2h[1]+360
     }
@@ -164,9 +203,9 @@ define_function f_dom(integer dom[3]) {
     color[1] = dom
     uButton(1)
     x[1] = type_cast(dom[1])
-    x[2] = type_cast(dom[2])
-    x[3] = type_cast(dom[3])
-    f_r2h(type_cast(dom[1]), type_cast(dom[2]), type_cast(dom[3]))
+    x[2] = type_cast(dom[2])	//kinda ugly..
+    x[3] = type_cast(dom[3])	//can't type_cast arrays
+    f_r2h(x)
     y[2] = r2hReturn[2]
     p[2] = y[2]
     y[1] = r2hReturn[1]
@@ -179,11 +218,11 @@ define_function f_dom(integer dom[3]) {
 	p[3] = y[3] - 15
     }
 
-    f_h2r(p[1], p[2], p[3])
+    f_h2r(p)
     color[2] = h2rReturn
     uButton(2)
 
-    f_h2r(y[1], y[2], y[3])
+    f_h2r(y)
     color[3] = h2rReturn
     uButton(3)
 
@@ -283,38 +322,31 @@ define_function f_dom(integer dom[3]) {
 	}
     }
 
-    f_h2r(y[1], y[2], y[3])
+    f_h2r(y)
     color[4] = h2rReturn
     uButton(4)
 
-    f_h2r(yx[1], yx[2], yx[3])
+    f_h2r(yx)
     color[6] = h2rReturn
     uButton(6)
 
     y[1]=0
     y[2]=0
     y[3]=100-r2hReturn[3]
-    f_h2r(y[1], y[2], y[3])
+    f_h2r(y)
     color[7] = h2rReturn
     uButton(7)
 
     y[1]=0
     y[2]=0
     y[3]=r2hReturn[3]
-    f_h2r(y[1], y[2], y[3])
+    f_h2r(y)
     color[8] = h2rReturn
     uButton(8)
 
-    f_h2r(pr[1], pr[2], pr[3])
+    f_h2r(pr)
     color[5] = h2rReturn
     uButton(5)
-
-//todo: decide on this crap
-//    if(hs.v >= 50) { pr.v = 0 } else { pr.v = 100 } 
-//    pr.h=pr.s=0;
-//    z=f_h2r(pr);
-//    ud("8",z)
-
 }
 
 define_function uButton (integer colorNum) {
