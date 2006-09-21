@@ -7,6 +7,10 @@ dvTP = 10001:1:1
 define_variable
 
 volatile   integer i
+
+persistent sinteger separationOffset
+volatile   sinteger separationOffsetMod
+
 volatile   integer levels[3]
 persistent integer color[8][3]	//color value storage in RGB
 
@@ -23,16 +27,40 @@ data_event[dvTP] {
 
 level_event[dvTP, 1] level_event[dvTP, 2] level_event[dvTP, 3] {
     levels[level.input.level] = level.value
+}
+
+level_event[dvTP, 4] {
+    separationOffset = level.value
+    send_command dvTP, "'^BMF-4,0,%Tseparation: ', itoa(separationOffset)"
+}
+
+level_event[dvTP, 1] level_event[dvTP, 2] level_event[dvTP, 3] level_event[dvTP, 4] {
     cancel_wait 'level_change'      //filter dragging
     wait 5 'level_change' {
+	separationOffsetMod = 100 - separationOffset
 	f_dom(levels)
+    }
+}
+
+button_event[dvTP, 1] button_event[dvTP, 2] button_event[dvTP, 3] {
+    push: {
+	if(levels[button.input.channel] <> 0)
+	    send_level dvTP, (button.input.channel), levels[button.input.channel] - 1
+    }
+}
+
+button_event[dvTP, 4] button_event[dvTP, 5] button_event[dvTP, 6] {
+    push: {
+	if(levels[button.input.channel-3] <> 255)
+	    send_level dvTP, (button.input.channel-3), levels[button.input.channel - 3] + 1
     }
 }
 
 button_event[dvTP, 11] button_event[dvTP, 12] button_event[dvTP, 13] button_event[dvTP, 14]
 button_event[dvTP, 15] button_event[dvTP, 16] button_event[dvTP, 17] {
     push: {
-	for(i=1;i<4;i++) send_level dvTP, i, (color[button.input.channel-9][i])
+	for(i=1;i<4;i++) { send_level dvTP, i, (color[button.input.channel-9][i]) }
+	send_level dvTP, 4, separationOffset
     }
 }
 
@@ -210,11 +238,11 @@ define_function f_dom(integer dom[3]) {
     p[2] = y[2]
     y[1] = r2hReturn[1]
     p[1] = y[1]
-    if(r2hReturn[3] > 70) {
-	y[3] = r2hReturn[3] - 30
+    if(r2hReturn[3] > separationOffsetMod) {
+	y[3] = r2hReturn[3] - separationOffset
 	p[3] = y[3] + 15
     } else {
-	y[3] = r2hReturn[3] + 30
+	y[3] = r2hReturn[3] + separationOffset
 	p[3] = y[3] - 15
     }
 
@@ -234,11 +262,11 @@ define_function f_dom(integer dom[3]) {
 	yx[2] = r2hReturn[2]
 	y[2] = r2hReturn[2]
 	y[3] = r2hReturn[3]
-	if(r2hReturn[3] > 70 ) {
-	    yx[3] = r2hReturn[3] - 30
+	if(r2hReturn[3] > separationOffsetMod ) {
+	    yx[3] = r2hReturn[3] - separationOffset
 	    pr[3] = yx[3] + 15
 	} else {
-	    yx[3] = r2hReturn[3] + 30
+	    yx[3] = r2hReturn[3] + separationOffset
 	    pr[3] = yx[3] - 15
 	}
     }
@@ -261,8 +289,8 @@ define_function f_dom(integer dom[3]) {
 	y[2] = r2hReturn[2]
 	yx[2] = r2hReturn[2]
 	y[3] = r2hReturn[3]
-	if(r2hReturn[3] > 70) {
-	    yx[3] = r2hReturn[3] - 30
+	if(r2hReturn[3] > separationOffsetMod) {
+	    yx[3] = r2hReturn[3] - separationOffset
 	    pr[3] = yx[3] + 15
 	} else {
 	    yx[3] = r2hReturn[3] + 30
@@ -277,11 +305,11 @@ define_function f_dom(integer dom[3]) {
 	yx[2] = r2hReturn[2]
 	y[2] = r2hReturn[2]
 	y[3] = r2hReturn[3]
-	if(r2hReturn[3] > 70) {
-	    yx[3] = r2hReturn[3] - 30
+	if(r2hReturn[3] > separationOffsetMod) {
+	    yx[3] = r2hReturn[3] - separationOffset
 	    pr[3] = yx[3] + 15
 	} else {
-	    yx[3] = r2hReturn[3] + 30
+	    yx[3] = r2hReturn[3] + separationOffset
 	    pr[3] = yx[3] - 15
 	}
     }
@@ -293,11 +321,11 @@ define_function f_dom(integer dom[3]) {
 	yx[2] = pr[2]
 	y[2] = yx[2]
 	y[3] = r2hReturn[3]
-	if(r2hReturn[3] > 70) {
-	    yx[3] = r2hReturn[3] - 30
+	if(r2hReturn[3] > separationOffsetMod) {
+	    yx[3] = r2hReturn[3] - separationOffset
 	    pr[3] = yx[3] + 15
 	} else {
-	    yx[3] = r2hReturn[3] + 30
+	    yx[3] = r2hReturn[3] + separationOffset
 	    pr[3] = yx[3] - 15
 	}
     }
@@ -313,11 +341,11 @@ define_function f_dom(integer dom[3]) {
 	y[1] = pr[1]
 	yx[1] = y[1]
 	y[3] = r2hReturn[3]
-	if(r2hReturn[3] > 70) {
-	    yx[3] = r2hReturn[3] - 30
+	if(r2hReturn[3] > separationOffsetMod) {
+	    yx[3] = r2hReturn[3] - separationOffset
 	    pr[3] = yx[3] + 15
 	} else {
-	    yx[3] = r2hReturn[3] + 30
+	    yx[3] = r2hReturn[3] + separationOffset
 	    pr[3] = yx[3] - 15
 	}
     }
