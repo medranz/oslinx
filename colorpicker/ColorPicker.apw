@@ -127,6 +127,10 @@
 <FilePathName>Main.axs</FilePathName>
 <Comments></Comments>
 </File>
+<File CompileType="None" Type="TP4"><Identifier>colorpicker</Identifier>
+<FilePathName>UI\colorpicker.tp4</FilePathName>
+<Comments></Comments>
+</File>
 </System>
 </Project>
 </Workspace>
